@@ -13,7 +13,7 @@ from flask_limiter.util import get_remote_address
 app = Flask(__name__)
 import index
 
-limiter = Limiter(app, key_func=get_remote_address, default_limits=["1/second"])
+limiter = Limiter(app=app, key_func=get_remote_address, default_limits=["1/second"])
 
 
 @app.route("/predict", methods=["POST"])
