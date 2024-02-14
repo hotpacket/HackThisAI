@@ -9,6 +9,8 @@ from flask import Flask, make_response, request
 import importlib.util
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+import zipfile
+from autogluon.tabular import TabularPredictor
 
 app = Flask(__name__)
 import index
@@ -36,7 +38,7 @@ def models_match(standard, user) -> bool:
     df = pd.read_csv("setup/AAPL.csv")
     df["Open-Close"] = df.Open - df.Close
     df["High-Low"] = df.High - df.Low
-    X = df[["Open-Close", "High-Low", "Volume"]].values
+    X = pd.DataFrame({'oc': df["Open-Close"], 'hl': df["High-Low"], 'vol': df["Volume"]})
     df["standard"] = standard.predict(X)
     try:
         df["user"] = user.predict(X)
@@ -52,7 +54,13 @@ def check():
     if not f:
         response = ["No file", 400]
     else:
-        user_model = dill.load(f)
+        f.save(f.filename)
+        try:
+            with zipfile.ZipFile(f.filename, 'r') as zip_ref:
+                zip_ref.extractall('.')
+        except:
+            return "Invalid zip file format", 400
+        user_model = TabularPredictor.load(".", require_py_version_match=False)
         if models_match(cls, user_model):
             response = ["Diamond Hands! FLAG{HODLHODL}", 200]
         else:
