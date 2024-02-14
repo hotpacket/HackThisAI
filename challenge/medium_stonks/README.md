@@ -3,6 +3,18 @@
 ## Scenario
 You're trying to bootstrap your startup by stealing a popular stock API. If you give it three features (`{"oc":1, 'hl':2, 'vol':3}`), it tells you whether you should buy (`1`) or sell (`-1`). Can you build something similar?
 
+# Note: the scoring API has been modified
+
+It now accepts zipped AutoGluOn models instead of dill serialized models.
+
+Call it like this from your jupyter notebook:
+import shutil
+shutil.make_archive('model', 'zip', 'AutogluonModels/ag-20240214_151557')
+with open("model.zip", "rb") as f:
+    r = requests.post("http://localhost:5000/check", files={"data_file": f})
+    print(r.text)
+
+
 The features are Daily `Open - Close` (oc), `High - Low` (hl), and `Volume` (vol). You can export `csv` files from Yahoo Finance that have historical `Open, Close, High, Low, and Volume` data.
 
 ## Objective
